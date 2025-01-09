@@ -1,14 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Suspense } from 'react'
-import envConfig, { Locale } from '@/config'
-import { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
 import ProductTable from './product-table'
+import { getProductListAction } from '@/services/product/product.action'
 
-type Props = {
-  params: Promise<{ locale: Locale }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
+// type Props = {
+//   params: Promise<{ locale: Locale }>
+//   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+// }
 
 // export async function generateMetadata(props: Props): Promise<Metadata> {
 //   const params = await props.params;
@@ -31,7 +29,14 @@ type Props = {
 //   }
 // }
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const productListQuery = await getProductListAction({
+    limit: 10,
+    offset: 0,
+    shuffle: 0
+  })
+  const data = productListQuery?.list ?? []
+
   return (
     <main className='grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8'>
       <div className='space-y-2'>
@@ -42,7 +47,7 @@ export default function ProductsPage() {
           </CardHeader>
           <CardContent>
             <Suspense>
-              <ProductTable />
+              <ProductTable data={data ?? []} />
             </Suspense>
           </CardContent>
         </Card>

@@ -6,7 +6,7 @@ import { twMerge } from 'tailwind-merge'
 import { jwtDecode } from 'jwt-decode'
 // import authApiRequest from '@/apiRequests/auth'
 import { DishStatus, OrderStatus, TableStatus } from '@/constants/type'
-import envConfig, { defaultLocale } from '@/config'
+// import envConfig, { defaultLocale } from '@/config'
 // import { TokenPayload } from '@/types/jwt.types'
 // import guestApiRequest from '@/apiRequests/guest'
 import { format } from 'date-fns'
@@ -17,9 +17,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/**
- * Xóa đi ký tự `/` đầu tiên của path
- */
 export const normalizePath = (path: string) => {
   return path.startsWith('/') ? path.slice(1) : path
 }
@@ -146,10 +143,6 @@ export const getVietnameseTableStatus = (status: (typeof TableStatus)[keyof type
   }
 }
 
-export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) => {
-  return envConfig.NEXT_PUBLIC_URL + `/${defaultLocale}/tables/` + tableNumber + '?token=' + token
-}
-
 // export const decodeToken = (token: string) => {
 //   return jwtDecode(token) as TokenPayload
 // }
@@ -174,13 +167,13 @@ export const formatDateTimeToTimeString = (date: string | Date) => {
   return format(date instanceof Date ? date : new Date(date), 'HH:mm:ss')
 }
 
-export const generateSocketInstace = (accessToken: string) => {
-  return io(envConfig.NEXT_PUBLIC_API_ENDPOINT, {
-    auth: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  })
-}
+// export const generateSocketInstace = (accessToken: string) => {
+//   return io(envConfig.NEXT_PUBLIC_API_ENDPOINT, {
+//     auth: {
+//       Authorization: `Bearer ${accessToken}`
+//     }
+//   })
+// }
 
 // export const OrderStatusIcon = {
 //   [OrderStatus.Pending]: Loader,

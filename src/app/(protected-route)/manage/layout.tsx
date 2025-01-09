@@ -1,6 +1,6 @@
 import DarkModeToggle from '@/components/dark-mode-toggle'
-import NavLinks from '@/app/(admin)/manage/nav-links'
-import MobileNavLinks from '@/app/(admin)/manage/mobile-nav-links'
+import NavLinks from '@/app/(protected-route)/manage/nav-links'
+import MobileNavLinks from '@/app/(protected-route)/manage/mobile-nav-links'
 
 export default function Layout({
   children

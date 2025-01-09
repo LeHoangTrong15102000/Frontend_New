@@ -45,40 +45,113 @@ import { useDeleteProductMutation, useGetProductListQuery } from '@/queries/useP
 import { ProductListResType } from '@/schemaValidations/product.schema'
 import AddProduct from './add-product'
 import EditProduct from './edit-product'
+import { getProductListAction } from '@/services/product/product.action'
+import { Product } from '@/services/product/product.dto'
+import { useListTeamByListTeamId, useProductTypeList, useProjectList } from '@/services/product/product.query'
+import { formatDate } from '@/utils/converter'
+import { useAuth } from '@/contexts/AuthContext'
+import { PORTAL_API_KEY } from '@/config'
 
 type ProductItem = ProductListResType['list'][0]
 
 const ProductTableContext = createContext<{
   setProductIdEdit: (value: number) => void
   productIdEdit: number | undefined
-  productDelete: ProductItem | null
-  setProductDelete: (value: ProductItem | null) => void
+  productDelete: Product | null
+  setProductDelete: (value: Product | null) => void
 }>({
   setProductIdEdit: (value: number | undefined) => {},
   productIdEdit: undefined,
   productDelete: null,
-  setProductDelete: (value: ProductItem | null) => {}
+  setProductDelete: (value: Product | null) => {}
 })
 
-export const columns: ColumnDef<ProductItem>[] = [
+export const ProductTypeCell = (row: any) => {
+  const { data: productTypes } = useProductTypeList()
+  const productType = productTypes?.find((type: any) => type?.value === row.getValue('product_type'))
+
+  return <div className='capitalize'>{productType?.text || row.getValue('product_type')}</div>
+}
+
+export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: 'Id',
     header: 'ID'
   },
   {
     accessorKey: 'name',
-    header: 'Tên sản phấm',
+    header: 'TÊN SẢN PHẨM',
     cell: ({ row }) => <div className='capitalize'>{row.getValue('name')}</div>
   },
   {
+    accessorKey: 'sku',
+    header: 'SKU',
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('sku')}</div>
+  },
+  {
     accessorKey: 'price',
-    header: 'Giá bán',
+    header: 'GIÁ BÁN',
     cell: ({ row }) => <div className='capitalize'>{formatCurrency(row.getValue('price'))}</div>
   },
   {
-    accessorKey: 'cost',
-    header: 'Giá vốn',
-    cell: ({ row }) => <div className='capitalize'>{formatCurrency(row.getValue('cost'))}</div>
+    accessorKey: 'description',
+    header: 'MÔ TẢ',
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('description')}</div>
+  },
+  {
+    accessorKey: 'product_type',
+    header: 'LOẠI SẢN PHẨM',
+    cell: ({ row }) => ProductTypeCell(row)
+  },
+  {
+    accessorKey: 'project_id',
+    header: 'NHÓM',
+    cell: ({ row }) => {
+      // const { data: projects } = useProjectList(row?.original?.user_name || '')
+      // const project = projects?.find((p: any) => p.Id === row.getValue('project_id'))
+      // return <div className='capitalize'>{project?.ProjectName || row.getValue('project_id')}</div>
+      return <div className='capitalize'>{row.getValue('project_id')}</div>
+    }
+  },
+  {
+    accessorKey: 'team_id',
+    header: 'NHÓM - TEAM',
+    cell: async ({ row }) => {
+      // const productListQuery = await getProductListAction({
+      //   limit: 10,
+      //   offset: 0,
+      //   shuffle: 0
+      // })
+      // const products = productListQuery?.list ?? []
+      // const { data: teamsByListTeamId } = useListTeamByListTeamId({
+      //   lst_team_id: products.map((p: Product) => p.team_id),
+      //   api_key: PORTAL_API_KEY
+      // })
+      // const teamName =
+      //   teamsByListTeamId &&
+      //   Array.isArray(teamsByListTeamId) &&
+      //   teamsByListTeamId?.find((t: any) => t.Id === row.getValue('team_id'))?.TeamName
+
+      // return <div className='capitalize'>{teamName || row.getValue('team_id') || '-'}</div>
+      return <div className='capitalize'>{row.getValue('team_id') || '-'}</div>
+    }
+  },
+  {
+    accessorKey: 'active',
+    header: 'TRẠNG THÁI',
+    cell: ({ row }) => {
+      return <div className='capitalize'>{row.getValue('active')}</div>
+    }
+  },
+  {
+    accessorKey: 's_created_by',
+    header: 'TẠO BỞI',
+    cell: ({ row }) => row.getValue('s_created_by') || row.original.user_name
+  },
+  {
+    accessorKey: 's_updated_at',
+    header: 'CẬP NHẬT',
+    cell: ({ row }) => formatDate(row.getValue('s_updated_at') || row.original.UpdatedAt || row.original.s_created_at)
   },
   {
     id: 'actions',
@@ -117,8 +190,8 @@ function AlertDialogDeleteProduct({
   productDelete,
   setProductDelete
 }: {
-  productDelete: ProductItem | null
-  setProductDelete: (value: ProductItem | null) => void
+  productDelete: Product | null
+  setProductDelete: (value: Product | null) => void
 }) {
   const { mutateAsync } = useDeleteProductMutation()
 
@@ -165,14 +238,13 @@ function AlertDialogDeleteProduct({
 
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
-export default function ProductTable() {
+export default function ProductTable({ data }: { data: Product[] }) {
   const searchParam = useSearchParams()
   const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1
   const pageIndex = page - 1
   const [productIdEdit, setProductIdEdit] = useState<number | undefined>()
-  const [productDelete, setProductDelete] = useState<ProductItem | null>(null)
-  const productListQuery = useGetProductListQuery()
-  const data = productListQuery.data?.payload.list ?? []
+  const [productDelete, setProductDelete] = useState<Product | null>(null)
+
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -213,7 +285,7 @@ export default function ProductTable() {
 
   return (
     <ProductTableContext.Provider value={{ productIdEdit, setProductIdEdit, productDelete, setProductDelete }}>
-      <div className='w-full'>
+      <div className='w-full space-y-4 p-2'>
         <EditProduct id={productIdEdit} setId={setProductIdEdit} />
         <AlertDialogDeleteProduct productDelete={productDelete} setProductDelete={setProductDelete} />
         <div className='flex items-center py-4'>
@@ -227,9 +299,9 @@ export default function ProductTable() {
             <AddProduct />
           </div>
         </div>
-        <div className='rounded-md border'>
-          <Table>
-            <TableHeader>
+        <div className='relative table-fixed whitespace-nowrap rounded-md border overflow-x-auto'>
+          <Table className='relative min-w-[1200px]'>
+            <TableHeader className='text-nowrap'>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {

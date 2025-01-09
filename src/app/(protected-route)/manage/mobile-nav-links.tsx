@@ -1,5 +1,5 @@
 'use client'
-import menuItems from '@/app/(admin)/manage/menuItems'
+import menuItems from '@/app/(protected-route)/manage/menuItems'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'

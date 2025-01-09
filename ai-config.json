@@ -1,0 +1,12 @@
+{
+  "chatgpt": {
+    "name": "ChatGPT",
+    "appId": "161de75e-a48b-4762-96f3-e9b95e54b3fc",
+    "appKey": "app-nQ559E0dj9u8RWxkLa2zanxz"
+  },
+  "gemini": {
+    "name": "Gemini",
+    "appId": "499dd19a-9486-4675-91b8-2416b0edd0e0",
+    "appKey": "app-oVtJEbx9MtHeaeCZ2O9OCgxA"
+  }
+}
